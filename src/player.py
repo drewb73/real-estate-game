@@ -74,6 +74,31 @@ def create_player():
 
 # Function to load or initialize a player
 def initialize_player():
+    if os.path.exists(PLAYER_DATA_FILE):
+        with open(PLAYER_DATA_FILE, "r") as file:
+            data = json.load(file)
+        saved_name = data.get("name", "Unknown")
+
+        print(f"Welcome back, {saved_name}!")
+        print("1. continue your saved game?")
+        print("2. Delete Save and Restart")
+        choice = input("Enter your choice (1 or 2):")
+
+        if choice == "1":
+            # load the saved game
+            return Player.load()
+        elif choice == "2":
+            # delete the saved game and restart
+            os.remove(PLAYER_DATA_FILE)
+            print("Save file deleted. Restarting game...")
+        else:
+            print("Invalid choice. Restarting game...")
+            return Player.load()
+    
+    # if no save file exists, create a new player
+    print("Welcome to the game!")
+    return create_player()
+
     player = Player.load()
     if player:
         print(f"Welcome back, {player.name}!")
