@@ -6,7 +6,8 @@ def main():
 
     # Display player info
     print(f"\nPlayer: {player.name}")
-    print(f"Capital: {player.capital}")
+    print(f"Difficulty: {player.difficulty}")
+    print(f"Capital: ${player.capital}")
 
     # Save progress (for testing)
     player.save()
