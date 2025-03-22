@@ -1,6 +1,45 @@
 from player import initialize_player
 from property import Property, generate_property, generate_properties_for_month
 
+# Display portfolio
+def display_portfolio(player):
+    if not player.properties:
+        print("\nYou do not own any properties yet.")
+        return
+    
+    print("\n== Your Real Estate Portfolio ==")
+    for i, prop in enumerate(player.properties, start=1):
+        print(f"{i}. {prop.address}")
+    print("0. Go back to main menu")
+
+    while True:
+        choice = input("Enter the number of the property to view details (or 0 to go back): ")
+        if choice == "0":
+            break
+        try:
+            choice = int(choice)
+            if 1 <= choice <= len(player.properties):
+                view_property_details(player.properties[choice - 1])
+            else:
+                print("\nInvalid choice. Please enter a number from the list.")
+        except ValueError:
+            print("\nInvalid input. Please enter a number.")
+
+
+def view_property_details(property):
+    # Display property details
+    print("\n=== Property Details ===")
+    print(property)
+    print("\n1. Go back to the portfolio")
+
+    while True:
+        choice = input("Enter your choice: ")
+        if choice == "1":
+            break
+        else:
+            print("\nInvalid choice. Please enter 1.")
+
+
 # Display addresses for a sepcific a specific type
 def display_properties(properties, property_type):
     print(f"\n== Available {property_type}s ===")
@@ -82,7 +121,7 @@ def handle_main_menu(player):
         elif choice == "3":
             print("\nView Market Insights (WIP)")
         elif choice == "4":
-            print("\nView Real Estate Portfolio (WIP)")
+            display_portfolio(player)
         elif choice == "5":
             advance_to_next_month(player)
         elif choice == "6":
