@@ -63,18 +63,19 @@ def display_buy_properties_menu(player):
             print("\nInvalid input. Please enter a number.")
 
 
-def display_main_menu():
+def display_main_menu(player):
+    print(f"\nYear: {player.year}, Month: {player.month}")
     print("\n=== Main Menu ===")
     print("1. Buy Available Properties")
     print("2. Sell Owned Properties")
     print("3. View Market Insights")
     print("4. View Real Estate Portfolio")
     print("5. Advance to Next Month")
-    print("6. Exit")
+    print("6. Save and Exit")
 
 def handle_main_menu(player):
     while True:
-        display_main_menu()
+        display_main_menu(player)
         choice = input("Enter your choice 1-6: ")
         if choice == "1":
             display_buy_properties_menu(player)
@@ -85,13 +86,20 @@ def handle_main_menu(player):
         elif choice == "4":
             print("\nView Real Estate Portfolio (WIP)")
         elif choice == "5":
-            print("\nAdvance to Next Month (WIP)")
+            advance_to_next_month(player)
         elif choice == "6":
             print("\nExiting the game...")  
             player.save()
             break
         else:
             print("\nInvalid choice. Please try again.")
+
+def advance_to_next_month(player):
+    player.month += 1
+    if player.month > 12:
+        player.month = 1
+        player.year += 1
+    print(f"\nAdvanced to {player.year}, {player.month}")
 
 
 def main():

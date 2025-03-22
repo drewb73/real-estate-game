@@ -6,11 +6,13 @@ from property import Property  # Import the Property class
 PLAYER_DATA_FILE = "player_data.json"
 
 class Player:
-    def __init__(self, name, difficulty, capital, properties=None):
+    def __init__(self, name, difficulty, capital, properties=None, year=1, month=1):
         self.name = name
         self.difficulty = difficulty
         self.capital = capital
         self.properties = properties if properties is not None else []
+        self.year = year # Current year
+        self.month = month # Current month
 
     def save(self):
         """Save player data to a file."""
@@ -18,7 +20,9 @@ class Player:
             "name": self.name,
             "difficulty": self.difficulty,
             "capital": self.capital,
-            "properties": [prop.to_dict() for prop in self.properties]  # Convert Property objects to dictionaries
+            "properties": [prop.to_dict() for prop in self.properties],  # Convert Property objects to dictionaries
+            "year":self.year, # save current year
+            "month": self.month # Save the current month
         }
         with open(PLAYER_DATA_FILE, "w") as file:
             json.dump(data, file)
@@ -48,7 +52,9 @@ class Player:
                     name=data["name"],
                     difficulty=data["difficulty"],
                     capital=data["capital"],
-                    properties=properties
+                    properties=properties,
+                    year=data["year"],
+                    month=data["month"]
                 )
             except (json.JSONDecodeError, ValueError) as e:
                 print(f"Error loading save file: {e}. Starting a new game. ")
