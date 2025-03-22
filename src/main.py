@@ -65,6 +65,7 @@ def display_buy_properties_menu(player):
 
 def display_main_menu(player):
     print(f"\nYear: {player.year}, Month: {player.month}")
+    print(f" Current Capital: ${player.capital:,.2f}")
     print("\n=== Main Menu ===")
     print("1. Buy Available Properties")
     print("2. Sell Owned Properties")
