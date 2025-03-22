@@ -9,7 +9,7 @@ def generate_properties_for_type(property_type, count=5):
 def display_properties(properties, property_type):
     print(f"\n== Available {property_type}s ===")
     for i, prop in enumerate(properties, start=1):
-        print(f"]nProperty: {i}:")
+        print(f"\nProperty: {i}:")
         print(prop)
     print("\n6. Previous Menu")
 
@@ -39,7 +39,6 @@ def handle_buy_property(player, properties, property_type):
             print("\nInvalid input. Please enter a number.")
 
 
-# Display the Buy Properties menu
 def display_buy_properties_menu(player):
     property_types = ["Duplex", "Triplex", "Fourplex", "Apartment", "Apartment Complex"]
     while True:
@@ -50,7 +49,8 @@ def display_buy_properties_menu(player):
 
         choice = input("Enter your choice (1-6): ")
         if choice == "6":
-            break
+            print("\nReturning to the main menu...")
+            return  # Return to the main menu
         try:
             choice = int(choice)
             if 1 <= choice <= 5:
@@ -61,7 +61,6 @@ def display_buy_properties_menu(player):
                 print("\nInvalid choice. Please enter a number between 1 and 6.")
         except ValueError:
             print("\nInvalid input. Please enter a number.")
-
 
 
 def display_main_menu():
@@ -79,15 +78,15 @@ def handle_main_menu(player):
         choice = input("Enter your choice 1-6: ")
         if choice == "1":
             display_buy_properties_menu(player)
-        if choice == "2":
+        elif choice == "2":
             print("\nSell Owned Properties (WIP)")
-        if choice == "3":
+        elif choice == "3":
             print("\nView Market Insights (WIP)")
-        if choice == "4":
+        elif choice == "4":
             print("\nView Real Estate Portfolio (WIP)")
-        if choice == "5":
+        elif choice == "5":
             print("\nAdvance to Next Month (WIP)")
-        if choice == "6":
+        elif choice == "6":
             print("\nExiting the game...")  
             player.save()
             break

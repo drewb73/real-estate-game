@@ -1,7 +1,8 @@
+# File to store player data
 import json
 import os
+from property import Property  # Import the Property class
 
-# File to store player data
 PLAYER_DATA_FILE = "player_data.json"
 
 class Player:
@@ -17,7 +18,7 @@ class Player:
             "name": self.name,
             "difficulty": self.difficulty,
             "capital": self.capital,
-            "properties": self.properties
+            "properties": [prop.to_dict() for prop in self.properties]  # Convert Property objects to dictionaries
         }
         with open(PLAYER_DATA_FILE, "w") as file:
             json.dump(data, file)
@@ -30,21 +31,24 @@ class Player:
             with open(PLAYER_DATA_FILE, "r") as file:
                 data = json.load(file)
             
-            # Handle missing keys (e.g., if the file was created before adding difficulty)
-            name = data.get("name", "Unknown")
-            difficulty = data.get("difficulty", "Medium")  # Default to Medium if missing
-            capital = data.get("capital", 0)  # Default to 0 if missing
-            properties = data.get("properties", [])  # Default to empty list if missing
-
+            properties = [Property(
+                property_type=prop["property_type"],
+                address=prop["address"],
+                units=prop["units"],
+                price_per_unit=prop["price_per_unit"],
+                management_fee_percent=prop["management_fee_percent"],
+                rent_per_unit=prop["rent_per_unit"],
+                maintenance_per_unit=prop["maintenance_per_unit"]
+            ) for prop in data.get("properties", [])]
             return Player(
-                name=name,
-                difficulty=difficulty,
-                capital=capital,
+                name=data["name"],
+                difficulty=data["difficulty"],
+                capital=data["capital"],
                 properties=properties
             )
         return None
 
-# Function to createa a new player
+# Function to create a new player
 def create_player():
     name = input("Enter your name: ")
 
@@ -68,7 +72,6 @@ def create_player():
         print("Invalid choice, setting difficulty to medium.")
         difficulty = "Medium"
         capital = 2_500_000
-
 
     return Player(name, difficulty, capital)
 
@@ -98,15 +101,4 @@ def initialize_player():
     # if no save file exists, create a new player
     print("Welcome to the game!")
     return create_player()
-
-    player = Player.load()
-    if player:
-        print(f"Welcome back, {player.name}!")
-        print(f"Dificulty: {player.difficulty}")
-        print(f"Capital: {player.capital}")
-    else:
-        print("Welcome to the game!")
-        player = create_player()
-    return player
-
 

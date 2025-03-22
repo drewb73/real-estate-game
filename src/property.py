@@ -9,6 +9,18 @@ class Property:
         self.management_fee_percent = management_fee_percent
         self.rent_per_unit = rent_per_unit
         self.maintenance_per_unit = maintenance_per_unit
+
+    # Add this method to convert the Property object to a dictionary
+    def to_dict(self):
+        return {
+            "property_type": self.property_type,
+            "address": self.address,
+            "units": self.units,
+            "price_per_unit": self.price_per_unit,
+            "management_fee_percent": self.management_fee_percent,
+            "rent_per_unit": self.rent_per_unit,
+            "maintenance_per_unit": self.maintenance_per_unit
+        }
     
     @property
     def total_price(self):
