@@ -116,6 +116,16 @@ def generate_property(property_type):
         maintenance_per_unit=maintenance_per_unit
     )
 
+def generate_properties_for_type(property_type, count=5):
+    return [generate_property(property_type) for _ in range(count)]
+
+def generate_properties_for_month():
+    property_types = ["Duplex", "Triplex", "Fourplex", "Apartment", "Apartment Complex"]
+    available_properties = []
+    for prop_type in property_types:
+        available_properties.extend(generate_properties_for_type(prop_type, count=5))
+    return available_properties
+
 
 if __name__ == "__main__":
     property_types = ["Duplex", "Triplex", "Fourplex", "Apartment", "Apartment Complex"]

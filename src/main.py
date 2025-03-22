@@ -1,9 +1,5 @@
 from player import initialize_player
-from property import Property, generate_property
-
-# Generate a list of available properties for a sepcific property type
-def generate_properties_for_type(property_type, count=5):
-    return [generate_property(property_type) for _ in range(count)]
+from property import Property, generate_property, generate_properties_for_month
 
 # Display addresses for a sepcific a specific type
 def display_properties(properties, property_type):
@@ -29,6 +25,7 @@ def handle_buy_property(player, properties, property_type):
                 if player.capital >= selected_property.total_price:
                     player.capital -= selected_property.total_price
                     player.properties.append(selected_property)
+                    player.available_properties.remove(selected_property)
                     print(f"\nYou bought {selected_property.property_type} at {selected_property.address} for ${selected_property.total_price:,.2f}!")
                     break
                 else:
@@ -55,7 +52,7 @@ def display_buy_properties_menu(player):
             choice = int(choice)
             if 1 <= choice <= 5:
                 property_type = property_types[choice - 1]
-                properties = generate_properties_for_type(property_type)
+                properties = [prop for prop in player.available_properties if prop.property_type == property_type]
                 handle_buy_property(player, properties, property_type)
             else:
                 print("\nInvalid choice. Please enter a number between 1 and 6.")
@@ -95,12 +92,19 @@ def handle_main_menu(player):
         else:
             print("\nInvalid choice. Please try again.")
 
+
 def advance_to_next_month(player):
     player.month += 1
     if player.month > 12:
         player.month = 1
         player.year += 1
+    
+    # generate new properties
+    player.available_properties = generate_properties_for_month()
+
+    # display results
     print(f"\nAdvanced to {player.year}, {player.month}")
+    print("New properties are now available!")
 
 
 def main():

@@ -1,18 +1,19 @@
 # File to store player data
 import json
 import os
-from property import Property  # Import the Property class
+from property import Property, generate_properties_for_month
 
 PLAYER_DATA_FILE = "player_data.json"
 
 class Player:
-    def __init__(self, name, difficulty, capital, properties=None, year=1, month=1):
+    def __init__(self, name, difficulty, capital, properties=None, year=1, month=1, available_properties=None):
         self.name = name
         self.difficulty = difficulty
         self.capital = capital
         self.properties = properties if properties is not None else []
         self.year = year # Current year
         self.month = month # Current month
+        self.available_properties = available_properties if available_properties is not None else []
 
     def save(self):
         """Save player data to a file."""
@@ -22,7 +23,8 @@ class Player:
             "capital": self.capital,
             "properties": [prop.to_dict() for prop in self.properties],  # Convert Property objects to dictionaries
             "year":self.year, # save current year
-            "month": self.month # Save the current month
+            "month": self.month, # Save the current month
+            "available_properties": [prop.to_dict() for prop in self.available_properties]
         }
         with open(PLAYER_DATA_FILE, "w") as file:
             json.dump(data, file)
@@ -36,7 +38,7 @@ class Player:
                 with open(PLAYER_DATA_FILE, "r") as file:
                     data = json.load(file)
 
-                if not all(key in data for key in ["name", "difficulty", "capital", "properties"]):
+                if not all(key in data for key in ["name", "difficulty", "capital", "properties", "year","month","available_properties"]):
                     raise ValueError("Invalid data format in save file.")
 
                 properties = [Property(
@@ -48,13 +50,25 @@ class Player:
                     rent_per_unit=prop["rent_per_unit"],
                     maintenance_per_unit=prop["maintenance_per_unit"]
                 ) for prop in data.get("properties", [])]
+
+                available_properties = [Property(
+                    property_type=prop["property_type"],
+                    address=prop["address"],
+                    units=prop["units"],
+                    price_per_unit=prop["price_per_unit"],
+                    management_fee_percent=prop["management_fee_percent"],
+                    rent_per_unit=prop["rent_per_unit"],
+                    maintenance_per_unit=prop["maintenance_per_unit"]
+                ) for prop in data.get("available_properties", [])]
+
                 return Player(
                     name=data["name"],
                     difficulty=data["difficulty"],
                     capital=data["capital"],
                     properties=properties,
                     year=data["year"],
-                    month=data["month"]
+                    month=data["month"],
+                    available_properties=available_properties
                 )
             except (json.JSONDecodeError, ValueError) as e:
                 print(f"Error loading save file: {e}. Starting a new game. ")
@@ -87,7 +101,10 @@ def create_player():
         difficulty = "Medium"
         capital = 2_500_000
 
-    return Player(name, difficulty, capital)
+    
+    # generate properties for first month
+    available_properties = generate_properties_for_month()
+    return Player(name, difficulty, capital, year=1, month=1,available_properties=available_properties)
 
 # Function to load or initialize a player
 def initialize_player():
