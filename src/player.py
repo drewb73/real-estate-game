@@ -28,24 +28,32 @@ class Player:
     def load():
         """Load player data from a file."""
         if os.path.exists(PLAYER_DATA_FILE):
-            with open(PLAYER_DATA_FILE, "r") as file:
-                data = json.load(file)
-            
-            properties = [Property(
-                property_type=prop["property_type"],
-                address=prop["address"],
-                units=prop["units"],
-                price_per_unit=prop["price_per_unit"],
-                management_fee_percent=prop["management_fee_percent"],
-                rent_per_unit=prop["rent_per_unit"],
-                maintenance_per_unit=prop["maintenance_per_unit"]
-            ) for prop in data.get("properties", [])]
-            return Player(
-                name=data["name"],
-                difficulty=data["difficulty"],
-                capital=data["capital"],
-                properties=properties
-            )
+            try:
+                with open(PLAYER_DATA_FILE, "r") as file:
+                    data = json.load(file)
+
+                if not all(key in data for key in ["name", "difficulty", "capital", "properties"]):
+                    raise ValueError("Invalid data format in save file.")
+
+                properties = [Property(
+                    property_type=prop["property_type"],
+                    address=prop["address"],
+                    units=prop["units"],
+                    price_per_unit=prop["price_per_unit"],
+                    management_fee_percent=prop["management_fee_percent"],
+                    rent_per_unit=prop["rent_per_unit"],
+                    maintenance_per_unit=prop["maintenance_per_unit"]
+                ) for prop in data.get("properties", [])]
+                return Player(
+                    name=data["name"],
+                    difficulty=data["difficulty"],
+                    capital=data["capital"],
+                    properties=properties
+                )
+            except (json.JSONDecodeError, ValueError) as e:
+                print(f"Error loading save file: {e}. Starting a new game. ")
+                os.remove(PLAYER_DATA_FILE)
+                return None
         return None
 
 # Function to create a new player
