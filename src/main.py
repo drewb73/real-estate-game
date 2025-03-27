@@ -1,5 +1,6 @@
 from player import initialize_player
 from property import Property, generate_property, generate_properties_for_month
+from market import MarketAnalytics
 
 # Display portfolio
 def display_portfolio(player):
@@ -119,7 +120,8 @@ def handle_main_menu(player):
         elif choice == "2":
             print("\nSell Owned Properties (WIP)")
         elif choice == "3":
-            print("\nView Market Insights (WIP)")
+            display_market_insights(player)
+            input("\nPress Enter to return to main menu...")
         elif choice == "4":
             display_portfolio(player)
         elif choice == "5":
@@ -131,19 +133,47 @@ def handle_main_menu(player):
         else:
             print("\nInvalid choice. Please try again.")
 
-
 def advance_to_next_month(player):
     player.month += 1
     if player.month > 12:
         player.month = 1
         player.year += 1
     
-    # generate new properties
+    # generate new properties and market data
     player.available_properties = generate_properties_for_month()
+    player.market.generate_monthly_samples(player.month)
+
 
     # display results
     print(f"\nAdvanced to {player.year}, {player.month}")
-    print("New properties are now available!")
+    print("New properties and market data are now available!")
+
+def display_market_insights(player):
+    print("\n=== Market Insights ===")
+    print(f"Current Month: {player.month}, {player.year}")
+    print("\nAverage Metrics (Based on 100 sampled properties per type):")
+    print("{:<20} {:<15} {:<15} {:<10}".format(
+        "Property Type", "Avg Price/Unit", "Avg Rent/Unit", "CAP Rate"
+    ))
+    
+    data = player.market.get_latest_market_data()
+    if not data:
+        print("\nNo market data available yet!")
+        return
+        
+    for snapshot in data:
+        print("{:<20} ${:<14,.2f} ${:<14,.2f} {:<10.2f}%".format(
+            snapshot.property_type,
+            snapshot.avg_price_per_unit,
+            snapshot.avg_rent_per_unit,
+            snapshot.avg_cap_rate
+        ))
+    
+    # Add historical comparison if available
+    if len(player.market.history) > 1:
+        print("\nMarket Trends (vs previous month):")
+        # Could add price movement indicators here
+
 
 
 def main():
