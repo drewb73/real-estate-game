@@ -36,7 +36,9 @@ class Property:
     
     @property
     def total_expenses(self):
-        return (self.maintenance_per_unit * 12 * self.units) + self.management_fee
+        maintenance = self.maintenance_per_unit * self.units * 12
+        management_fee = self.gross_income * (self.management_fee_percent / 100)
+        return maintenance + management_fee
     
     @property
     def net_income(self):
