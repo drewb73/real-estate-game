@@ -1,5 +1,5 @@
 import random
-from property import Property, generate_units, generate_address
+from property import Property, generate_units, generate_address, generate_price_per_unit, generate_management_fee_percent, generate_rent_per_unit, generate_maintenance_per_unit
 from typing import Dict, List, Tuple
 from dataclasses import dataclass
 
@@ -15,41 +15,45 @@ class MarketAnalytics:
     def __init__(self):
         self.history: Dict[int, List[MarketSnapshot]] = {} # {month: [MarketSnapshots]}
     
-    def generate_monthly_samples (self, current_month: int) -> List[MarketSnapshot]:
-        # generate 100 hidden properties per type and return average
+    def generate_monthly_samples(self, current_month: int) -> List[MarketSnapshot]:
+        """Generates market data with natural variation"""
         property_types = ["Duplex", "Triplex", "Fourplex", "Apartment", "Apartment Complex"]
         monthly_data = []
-
+        
         for prop_type in property_types:
             prices = []
             rents = []
             cap_rates = []
-
-            # generate 100 sample properties
+            
+            # Generate 100 properties with natural market variation
             for _ in range(100):
-                prop= Property(
+                # Create some market fluctuations
+                price_multiplier = random.uniform(0.9, 1.2)
+                rent_multiplier = random.uniform(0.8, 1.1)
+                
+                prop = Property(
                     property_type=prop_type,
-                    address="HIDDEN", # skip address generation for performance
+                    address="HIDDEN",
                     units=generate_units(prop_type),
-                    price_per_unit=random.randint(175_000, 400_000),
-                    management_fee_percent=random.randint(3, 6),
-                    rent_per_unit=random.randint(800, 2500),
-                    maintenance_per_unit=random.randint(500, 1500)
+                    price_per_unit=int(generate_price_per_unit() * price_multiplier),
+                    management_fee_percent=generate_management_fee_percent(),
+                    rent_per_unit=int(generate_rent_per_unit() * rent_multiplier),
+                    maintenance_per_unit=generate_maintenance_per_unit()
                 )
                 prices.append(prop.price_per_unit)
                 rents.append(prop.rent_per_unit)
                 cap_rates.append(prop.cap_rate)
-        
+            
             monthly_data.append(MarketSnapshot(
                 property_type=prop_type,
                 avg_price_per_unit=sum(prices) / len(prices),
                 avg_rent_per_unit=sum(rents) / len(rents),
                 avg_cap_rate=sum(cap_rates) / len(cap_rates)
             ))
-            
+        
         self.history[current_month] = monthly_data
         return monthly_data
-    
+        
     def get_latest_market_data(self) -> List[MarketSnapshot]:
         # returns the most recent market data
         if not self.history:

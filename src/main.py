@@ -150,7 +150,7 @@ def advance_to_next_month(player):
 
 def display_market_insights(player):
     print("\n=== Market Insights ===")
-    print(f"Current Month: {player.month}, {player.year}")
+    print(f"Current Month: {player.month}, year: {player.year}")
     print("\nAverage Metrics (Based on 100 sampled properties per type):")
     print("{:<20} {:<15} {:<15} {:<10}".format(
         "Property Type", "Avg Price/Unit", "Avg Rent/Unit", "CAP Rate"
@@ -162,7 +162,7 @@ def display_market_insights(player):
         return
         
     for snapshot in data:
-        print("{:<20} ${:<14,.2f} ${:<14,.2f} {:<10.2f}%".format(
+        print("{:<20} ${:<14,.2f} ${:<14,.2f} {:<8.2f}%".format(
             snapshot.property_type,
             snapshot.avg_price_per_unit,
             snapshot.avg_rent_per_unit,
@@ -172,8 +172,23 @@ def display_market_insights(player):
     # Add historical comparison if available
     if len(player.market.history) > 1:
         print("\nMarket Trends (vs previous month):")
-        # Could add price movement indicators here
+        current_month = max(player.market.history.keys())
+        previous_month = current_month - 1
 
+        if previous_month in player.market.history:
+            current_data = {s.property_type: s for s in player.market.history[current_month]}
+            previous_data = {s.property_type: s for s in player.market.history[previous_month]}
+            
+            for prop_type in current_data:
+                if prop_type in previous_data:
+                    price_change = ((current_data[prop_type].avg_price_per_unit - previous_data[prop_type].avg_price_per_unit) / previous_data[prop_type].avg_price_per_unit) * 100
+                    rent_change = ((current_data[prop_type].avg_rent_per_unit - previous_data[prop_type].avg_rent_per_unit) / previous_data[prop_type].avg_rent_per_unit) * 100
+                
+                print(f"{prop_type}: ")
+                print(f"  Price: {'↑' if price_change >=0 else '↓'} {abs(price_change):.1f}%")
+                print(f"  Rent: {'↑' if rent_change >=0 else '↓'} {abs(rent_change):.1f}%")
+    
+    input("\nPress Enter to return to main menu...")
 
 
 def main():

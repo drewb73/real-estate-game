@@ -10,7 +10,6 @@ class Property:
         self.rent_per_unit = rent_per_unit
         self.maintenance_per_unit = maintenance_per_unit
 
-    # Add this method to convert the Property object to a dictionary
     def to_dict(self):
         return {
             "property_type": self.property_type,
@@ -36,9 +35,9 @@ class Property:
     
     @property
     def total_expenses(self):
-        maintenance = self.maintenance_per_unit * self.units * 12
-        management_fee = self.gross_income * (self.management_fee_percent / 100)
-        return maintenance + management_fee
+        # Create more variation in expenses (30-60% of gross income)
+        expense_ratio = random.uniform(0.3, 0.6)  
+        return self.gross_income * expense_ratio
     
     @property
     def net_income(self):
@@ -89,34 +88,56 @@ def generate_units(property_type):
         raise ValueError("Invalid property type")
 
 def generate_price_per_unit():
-    return random.randint(175_000, 400_000)  # Fixed typo: `radnint` -> `randint`
+    return random.randint(150_000, 250_000)
 
 def generate_management_fee_percent():
-    return random.randint(3, 6)
+    return random.uniform(5.0, 8.0)  # Changed to uniform for decimal values
 
 def generate_rent_per_unit():
-    return random.randint(800, 2500)
+    return random.randint(1200, 2200)
 
 def generate_maintenance_per_unit():
-    return random.randint(500, 1500)
+    return random.randint(200, 800)
+
+def validate_property(prop):
+    """Ensure property meets minimum investment criteria"""
+    cap = prop.cap_rate
+    attempts = 0
+    while attempts < 5 and not (4.0 <= cap <= 10.0):
+        if cap < 4.0:
+            prop.rent_per_unit *= 1.15  # More modest adjustment
+        elif cap > 10.0:
+            prop.price_per_unit *= 1.1
+        cap = prop.cap_rate
+        attempts += 1
+    return prop
 
 def generate_property(property_type):
-    address = generate_address()  # Fixed: Added parentheses to call the function
-    units = generate_units(property_type)
-    price_per_unit = generate_price_per_unit()
-    management_fee_percent = generate_management_fee_percent()
-    rent_per_unit = generate_rent_per_unit()
-    maintenance_per_unit = generate_maintenance_per_unit()
-
-    return Property(
+    """Generates properties with natural CAP rate variation"""
+    prop = Property(
         property_type=property_type,
-        address=address,
-        units=units,
-        price_per_unit=price_per_unit,
-        management_fee_percent=management_fee_percent,
-        rent_per_unit=rent_per_unit,
-        maintenance_per_unit=maintenance_per_unit
+        address=generate_address(),
+        units=generate_units(property_type),
+        price_per_unit=generate_price_per_unit(),
+        management_fee_percent=generate_management_fee_percent(),
+        rent_per_unit=generate_rent_per_unit(),
+        maintenance_per_unit=generate_maintenance_per_unit()
     )
+    
+    # Let CAP rates vary naturally without forced validation
+    return prop
+
+def generate_properties_for_type(property_type, count=5):
+    """Generates a mix of good and bad properties"""
+    properties = []
+    for _ in range(count):
+        prop = generate_property(property_type)
+        # Ensure some variety in quality
+        if random.random() < 0.3:  # 30% chance of underperforming property
+            prop.rent_per_unit *= random.uniform(0.7, 0.9)  # Reduce rent
+            prop.price_per_unit *= random.uniform(1.1, 1.3)  # Increase price
+        properties.append(prop)
+    return properties
 
 def generate_properties_for_type(property_type, count=5):
     return [generate_property(property_type) for _ in range(count)]
@@ -128,7 +149,6 @@ def generate_properties_for_month():
         available_properties.extend(generate_properties_for_type(prop_type, count=5))
     return available_properties
 
-
 if __name__ == "__main__":
     property_types = ["Duplex", "Triplex", "Fourplex", "Apartment", "Apartment Complex"]
     for prop_type in property_types:
@@ -136,5 +156,3 @@ if __name__ == "__main__":
         print(f"Generated {prop_type}:")
         property = generate_property(prop_type)
         print(property)
-
-
