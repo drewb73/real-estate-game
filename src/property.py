@@ -50,7 +50,13 @@ class Property:
         return (self.net_income / self.total_price) * 100
     
     def __str__(self):
-        return(
+        valuation = ""
+        if self.cap_rate > 5.5:
+            valuation = "\n🔥 Great Deal!"
+        elif self.cap_rate < 4:
+            valuation = "\n⚠️ Poor Performer"
+        
+        return (
             f"Type: {self.property_type}\n"
             f"Address: {self.address}\n"
             f"Units: {self.units}\n"
@@ -61,7 +67,7 @@ class Property:
             f"Management Fee: ${self.management_fee:,.2f}\n"
             f"Expenses: ${self.total_expenses:,.2f}\n"
             f"Net Income: ${self.net_income:,.2f}\n"
-            f"CAP Rate: {self.cap_rate:.2f}%"
+            f"CAP Rate: {self.cap_rate:.2f}%{valuation}"
         )
 
 STREET_NAMES = ["Oak", "Pine", "Elm", "Maple", "Cedar", "Hill", "Lake", "River", "Park", "Main", "Olive", "Cabernet", "Orchid", "Lily", "Applewood"]
@@ -91,7 +97,7 @@ def generate_price_per_unit():
     return random.randint(150_000, 250_000)
 
 def generate_management_fee_percent():
-    return random.uniform(5.0, 8.0)  # Changed to uniform for decimal values
+    return random.uniform(5.0, 8.0)
 
 def generate_rent_per_unit():
     return random.randint(1200, 2200)
@@ -139,37 +145,12 @@ def generate_properties_for_type(property_type, count=5):
         properties.append(prop)
     return properties
 
-def generate_properties_for_type(property_type, count=5):
-    return [generate_property(property_type) for _ in range(count)]
-
 def generate_properties_for_month():
     property_types = ["Duplex", "Triplex", "Fourplex", "Apartment", "Apartment Complex"]
     available_properties = []
     for prop_type in property_types:
         available_properties.extend(generate_properties_for_type(prop_type, count=5))
     return available_properties
-
-def __Str__(self):
-    valuation = ""
-    if self.cap_rate > 5.5:
-        valuation = "\n🔥 Great Deal!"
-    elif self.caprate < 4:
-        valuation = "\n⚠️ Poor Performer"
-    
-    return (
-        f"Type: {self.property_type}\n"
-        f"Address: {self.address}\n"
-        f"Units: {self.units}\n"
-        f"Price per unit: ${self.price_per_unit:,.2f}\n"
-        f"Total Price: ${self.total_price:,.2f}\n"
-        f"Rent per unit: ${self.rent_per_unit:,.2f}\n"
-        f"Gross Income: ${self.gross_income:,.2f}\n"
-        f"Management Fee: ${self.management_fee:,.2f}\n"
-        f"Expenses: ${self.total_expenses:,.2f}\n"
-        f"Net Income: ${self.net_income:,.2f}\n"
-        f"CAP Rate: {self.cap_rate:.2f}%{valuation}"
-    )
-
 
 if __name__ == "__main__":
     property_types = ["Duplex", "Triplex", "Fourplex", "Apartment", "Apartment Complex"]
