@@ -51,9 +51,9 @@ class Property:
     
     def __str__(self):
         valuation = ""
-        if self.cap_rate > 5.5:
+        if self.cap_rate >= 5.5:  # Changed to >= to catch 5.5% exactly
             valuation = "\n🔥 Great Deal!"
-        elif self.cap_rate < 4:
+        elif self.cap_rate <= 4:  # Changed to <= to catch 4% exactly
             valuation = "\n⚠️ Poor Performer"
         
         return (
@@ -69,7 +69,8 @@ class Property:
             f"Net Income: ${self.net_income:,.2f}\n"
             f"CAP Rate: {self.cap_rate:.2f}%{valuation}"
         )
-
+    
+# Constants for address generation
 STREET_NAMES = ["Oak", "Pine", "Elm", "Maple", "Cedar", "Hill", "Lake", "River", "Park", "Main", "Olive", "Cabernet", "Orchid", "Lily", "Applewood"]
 STREET_TYPES = ["St", "Ave", "Blvd", "Ln", "Ct", "Rd", "Dr", "Way"]
 
