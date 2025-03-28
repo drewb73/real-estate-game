@@ -28,8 +28,12 @@ class MarketAnalytics:
             # Generate 100 properties with natural market variation
             for _ in range(100):
                 # Create some market fluctuations
-                price_multiplier = random.uniform(0.9, 1.2)
-                rent_multiplier = random.uniform(0.8, 1.1)
+                if random.random() < 2:
+                    price_multiplier = random.uniform(0.7, 1.5)
+                    rent_multiplier = random.uniform(0.6, 1.4)
+                else:
+                    price_multiplier = random.uniform(0.9, 1.1)
+                    rent_multiplier = random.uniform(0.9, 1.1)
                 
                 prop = Property(
                     property_type=prop_type,
