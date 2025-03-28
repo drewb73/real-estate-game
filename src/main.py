@@ -137,31 +137,65 @@ def handle_main_menu(player):
 def advance_to_next_month(player):
     monthly_income = 0
     
-    # Update property values
+    # Update property values with realistic appreciation
     for prop in player.properties:
-        # Change property value by ±0.05% to ±0.25%
-        value_change = random.uniform(0.9975, 1.0025)  # -0.25% to +0.25%
-        prop.price_per_unit *= value_change
+        # Base monthly appreciation (0.3% to 0.8% = ~4-10% annually)
+        base_appreciation = random.uniform(1.003, 1.008)
         
-        # Calculate income
+        # Seasonal factors (stronger in spring/summer)
+        seasonal_factor = 1.0
+        if player.month in [3, 4, 5, 6]:  # Spring/summer
+            seasonal_factor = random.uniform(1.002, 1.005)  # +0.2% to +0.5%
+        elif player.month in [11, 12, 1]:  # Winter
+            seasonal_factor = random.uniform(0.998, 1.002)  # -0.2% to +0.2%
+        
+        # Market momentum based on price-to-rent ratio
+        momentum_factor = 1.0
+        if len(player.market.history) > 1:
+            current_data = player.market.get_latest_market_data()
+            for snapshot in current_data:
+                if snapshot.property_type == prop.property_type:
+                    price_to_rent = snapshot.avg_price_per_unit / snapshot.avg_rent_per_unit
+                    if price_to_rent > 180:  # Overpriced market (slower growth)
+                        momentum_factor = random.uniform(0.998, 1.003)
+                    else:  # Undervalued market (faster growth)
+                        momentum_factor = random.uniform(1.003, 1.008)
+        
+        # Apply all appreciation factors
+        total_appreciation = base_appreciation * seasonal_factor * momentum_factor
+        prop.price_per_unit *= total_appreciation
+        
+        # Calculate monthly income (1/12 of annual net income)
         monthly_income += prop.net_income / 12
     
+    # Add accumulated income to player's capital
     player.capital += monthly_income
-    player.month += 1
     
+    # Advance time
+    player.month += 1
     if player.month > 12:
         player.month = 1
         player.year += 1
     
-    # Generate new properties
+    # Generate new properties for the new month
     player.available_properties = generate_properties_for_month()
+    
+    # Generate new market data samples
     player.market.generate_monthly_samples(player.month)
     
-    # Display results
+    # Display results to player
     print(f"\nAdvanced to {player.year}, Month {player.month}")
     if monthly_income > 0:
         print(f"Received ${monthly_income:,.2f} in rental income!")
     print("New properties and market data are now available!")
+
+def calculate_market_rent(player, property):
+    """Get average rent for this property type from market data"""
+    current_data = player.market.get_latest_market_data()
+    for snapshot in current_data:
+        if snapshot.property_type == property.property_type:
+            return snapshot.avg_rent_per_unit
+    return property.rent_per_unit  # Fallback if no market data
 
 def display_market_insights(player):
     print("\n=== Market Insights ===")
