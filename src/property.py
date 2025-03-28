@@ -9,6 +9,11 @@ class Property:
         self.management_fee_percent = management_fee_percent
         self.rent_per_unit = rent_per_unit
         self.maintenance_per_unit = maintenance_per_unit
+        
+        # Consistent expense calculation with base + variation
+        base_ratio = 0.35  # Base 35% expense ratio
+        variation = random.uniform(-0.05, 0.05)  # ±5% variation
+        self._expense_ratio = base_ratio + variation  # Final ratio between 30-40%
 
     def to_dict(self):
         return {
@@ -18,7 +23,8 @@ class Property:
             "price_per_unit": self.price_per_unit,
             "management_fee_percent": self.management_fee_percent,
             "rent_per_unit": self.rent_per_unit,
-            "maintenance_per_unit": self.maintenance_per_unit
+            "maintenance_per_unit": self.maintenance_per_unit,
+            "expense_ratio": self._expense_ratio  # Save the ratio for persistence
         }
     
     @property
@@ -35,9 +41,7 @@ class Property:
     
     @property
     def total_expenses(self):
-        # Create more variation in expenses (30-60% of gross income)
-        expense_ratio = random.uniform(0.3, 0.6)  
-        return self.gross_income * expense_ratio
+        return self.gross_income * self._expense_ratio  # Use stored ratio
     
     @property
     def net_income(self):
@@ -50,27 +54,30 @@ class Property:
         return (self.net_income / self.total_price) * 100
     
     def __str__(self):
-        valuation = ""
-        if self.cap_rate >= 5.5:  # Changed to >= to catch 5.5% exactly
-            valuation = "\n🔥 Great Deal!"
-        elif self.cap_rate <= 4:  # Changed to <= to catch 4% exactly
-            valuation = "\n⚠️ Poor Performer"
+        if self.cap_rate >= 7:
+            valuation = "\n🔥🔥 Premium Investment!"
+        elif self.cap_rate >= 5.5:
+            valuation = "\n🔥 Solid Deal"
+        elif self.cap_rate <= 3:
+            valuation = "\n⚠️⚠️ Money Pit" 
+        elif self.cap_rate <= 4:
+            valuation = "\n⚠️ Below Average"
+        else:
+            valuation = "\n➖ Average"
         
-        return (
-            f"Type: {self.property_type}\n"
-            f"Address: {self.address}\n"
-            f"Units: {self.units}\n"
-            f"Price per unit: ${self.price_per_unit:,.2f}\n"
-            f"Total Price: ${self.total_price:,.2f}\n"
-            f"Rent per unit: ${self.rent_per_unit:,.2f}\n"
-            f"Gross Income: ${self.gross_income:,.2f}\n"
-            f"Management Fee: ${self.management_fee:,.2f}\n"
-            f"Expenses: ${self.total_expenses:,.2f}\n"
-            f"Net Income: ${self.net_income:,.2f}\n"
-            f"CAP Rate: {self.cap_rate:.2f}%{valuation}"
-        )
-    
-# Constants for address generation
+        return f"""Type: {self.property_type}
+Address: {self.address}
+Units: {self.units}
+Price per unit: ${self.price_per_unit:,.2f}
+Total Price: ${self.total_price:,.2f}
+Rent per unit: ${self.rent_per_unit:,.2f}
+Gross Income: ${self.gross_income:,.2f}
+Management Fee: ${self.management_fee:,.2f}
+Expenses: ${self.total_expenses:,.2f}
+Net Income: ${self.net_income:,.2f}
+CAP Rate: {self.cap_rate:.2f}%{valuation}"""
+
+# [Rest of your existing functions remain unchanged...]
 STREET_NAMES = ["Oak", "Pine", "Elm", "Maple", "Cedar", "Hill", "Lake", "River", "Park", "Main", "Olive", "Cabernet", "Orchid", "Lily", "Applewood"]
 STREET_TYPES = ["St", "Ave", "Blvd", "Ln", "Ct", "Rd", "Dr", "Way"]
 
@@ -106,19 +113,6 @@ def generate_rent_per_unit():
 def generate_maintenance_per_unit():
     return random.randint(200, 800)
 
-def validate_property(prop):
-    """Ensure property meets minimum investment criteria"""
-    cap = prop.cap_rate
-    attempts = 0
-    while attempts < 5 and not (4.0 <= cap <= 10.0):
-        if cap < 4.0:
-            prop.rent_per_unit *= 1.15  # More modest adjustment
-        elif cap > 10.0:
-            prop.price_per_unit *= 1.1
-        cap = prop.cap_rate
-        attempts += 1
-    return prop
-
 def generate_property(property_type):
     """Generates properties with natural CAP rate variation"""
     prop = Property(
@@ -131,20 +125,15 @@ def generate_property(property_type):
         maintenance_per_unit=generate_maintenance_per_unit()
     )
     
-    # Let CAP rates vary naturally without forced validation
+    # Ensure some variety in quality
+    if random.random() < 0.3:  # 30% chance of underperforming property
+        prop.rent_per_unit *= random.uniform(0.7, 0.9)  # Reduce rent
+        prop.price_per_unit *= random.uniform(1.1, 1.3)  # Increase price
+    
     return prop
 
 def generate_properties_for_type(property_type, count=5):
-    """Generates a mix of good and bad properties"""
-    properties = []
-    for _ in range(count):
-        prop = generate_property(property_type)
-        # Ensure some variety in quality
-        if random.random() < 0.3:  # 30% chance of underperforming property
-            prop.rent_per_unit *= random.uniform(0.7, 0.9)  # Reduce rent
-            prop.price_per_unit *= random.uniform(1.1, 1.3)  # Increase price
-        properties.append(prop)
-    return properties
+    return [generate_property(property_type) for _ in range(count)]
 
 def generate_properties_for_month():
     property_types = ["Duplex", "Triplex", "Fourplex", "Apartment", "Apartment Complex"]
