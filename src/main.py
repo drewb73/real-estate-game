@@ -1,6 +1,7 @@
 from player import initialize_player
 from property import Property, generate_property, generate_properties_for_month
 from market import MarketAnalytics
+import random
 
 # Display portfolio
 def display_portfolio(player):
@@ -118,7 +119,7 @@ def handle_main_menu(player):
         if choice == "1":
             display_buy_properties_menu(player)
         elif choice == "2":
-            print("\nSell Owned Properties (WIP)")
+            display_sell_properties_menu(player)
         elif choice == "3":
             display_market_insights(player)
             input("\nPress Enter to return to main menu...")
@@ -134,22 +135,28 @@ def handle_main_menu(player):
             print("\nInvalid choice. Please try again.")
 
 def advance_to_next_month(player):
-    # Calculate income from owned properties first
     monthly_income = 0
+    
+    # Update property values
     for prop in player.properties:
-        monthly_income += prop.net_income / 12  # Changed from prop.monthly_income
+        # Change property value by ±0.05% to ±0.25%
+        value_change = random.uniform(0.9975, 1.0025)  # -0.25% to +0.25%
+        prop.price_per_unit *= value_change
+        
+        # Calculate income
+        monthly_income += prop.net_income / 12
     
     player.capital += monthly_income
     player.month += 1
-
+    
     if player.month > 12:
         player.month = 1
         player.year += 1
     
-    # Generate new properties and market data
+    # Generate new properties
     player.available_properties = generate_properties_for_month()
     player.market.generate_monthly_samples(player.month)
-
+    
     # Display results
     print(f"\nAdvanced to {player.year}, Month {player.month}")
     if monthly_income > 0:
@@ -197,6 +204,51 @@ def display_market_insights(player):
                 print(f"  Rent: {'↑' if rent_change >=0 else '↓'} {abs(rent_change):.1f}%")
     
     input("\nPress Enter to return to main menu...")
+
+def display_sell_properties_menu(player):
+    if not player.properties:
+        print("\nYou don't own any properties to sell!")
+        input("\nPress Enter to return to main menu...")
+        return
+    
+    print("\n=== Sell Properties ===")
+    for i, prop in enumerate(player.properties, start=1):
+        print(f"{i}. {prop.address} (Value: ${prop.total_price:,.2f})")
+    print(f"{len(player.properties)+1}. Back to Main Menu")
+    
+    while True:
+        choice = input(f"\nSelect property to sell (1-{len(player.properties)}) or {len(player.properties)+1} to go back: ")
+        try:
+            choice = int(choice)
+            if 1 <= choice <= len(player.properties):
+                confirm_sell_property(player, player.properties[choice-1])
+                break
+            elif choice == len(player.properties)+1:
+                break
+            else:
+                print("Invalid choice. Please try again.")
+        except ValueError:
+            print("Please enter a valid number.")
+
+def confirm_sell_property(player, property):
+    while True:
+        print(f"\n=== Sell {property.property_type} ===")
+        print(property)
+        print(f"\nSell Price: ${property.total_price:,.2f}")
+        print("1. Confirm Sale")
+        print("2. Back to Properties List")
+        
+        choice = input("Enter your choice: ")
+        if choice == "1":
+            player.capital += property.total_price
+            player.properties.remove(property)
+            print(f"\nSold {property.property_type} at {property.address} for ${property.total_price:,.2f}!")
+            input("\nPress Enter to continue...")
+            break
+        elif choice == "2":
+            break
+        else:
+            print("Invalid choice. Please enter 1 or 2.")
 
 
 def main():
