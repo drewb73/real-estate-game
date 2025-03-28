@@ -134,18 +134,26 @@ def handle_main_menu(player):
             print("\nInvalid choice. Please try again.")
 
 def advance_to_next_month(player):
+    # Calculate income from owned properties first
+    monthly_income = 0
+    for prop in player.properties:
+        monthly_income += prop.net_income / 12  # Changed from prop.monthly_income
+    
+    player.capital += monthly_income
     player.month += 1
+
     if player.month > 12:
         player.month = 1
         player.year += 1
     
-    # generate new properties and market data
+    # Generate new properties and market data
     player.available_properties = generate_properties_for_month()
     player.market.generate_monthly_samples(player.month)
 
-
-    # display results
-    print(f"\nAdvanced to {player.year}, {player.month}")
+    # Display results
+    print(f"\nAdvanced to {player.year}, Month {player.month}")
+    if monthly_income > 0:
+        print(f"Received ${monthly_income:,.2f} in rental income!")
     print("New properties and market data are now available!")
 
 def display_market_insights(player):
