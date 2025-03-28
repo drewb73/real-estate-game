@@ -21,25 +21,77 @@ def display_portfolio(player):
         try:
             choice = int(choice)
             if 1 <= choice <= len(player.properties):
-                view_property_details(player.properties[choice - 1])
+                view_property_details(player, player.properties[choice - 1])
             else:
                 print("\nInvalid choice. Please enter a number from the list.")
         except ValueError:
             print("\nInvalid input. Please enter a number.")
 
+def adjust_property_rent(player, property):
+    market_rent = calculate_market_rent(player, property)
+    max_increase = market_rent * 1.05  # 5% above market
+    
+    print(f"\n=== Adjust Rent ===")
+    print(f"Current Rent: ${property.rent_per_unit:,.2f}")
+    print(f"Recommended Market Rent: ${market_rent:,.2f}")
+    print(f"Maximum Recommended: ${max_increase:,.2f} (5% above market)")
+    
+    while True:
+        try:
+            new_rent = float(input("Enter new rent amount: $"))
+            if new_rent < 0:
+                print("Rent cannot be negative!")
+                continue
+                
+            # Check if rent is too high
+            if new_rent > max_increase:
+                penalty_percent = random.uniform(0.03, 0.08)  # 3-8%
+                penalty_amount = property.net_income * penalty_percent
+                print(f"\nWarning: Rent is {(new_rent/market_rent-1)*100:.1f}% above market!")
+                print(f"This will reduce net income by ${penalty_amount:,.2f} this month")
+                
+                confirm = input("Confirm this change? (y/n): ").lower()
+                if confirm != 'y':
+                    continue
+                    
+                # Apply penalty
+                player.capital -= penalty_amount
+                print(f"\nApplied penalty of ${penalty_amount:,.2f} due to high rent!")
+            
+            # Update the rent
+            old_rent = property.rent_per_unit
+            property.rent_per_unit = new_rent
+            print(f"\nRent adjusted from ${old_rent:,.2f} to ${new_rent:,.2f}")
+            input("\nPress Enter to continue...")
+            break
+            
+        except ValueError:
+            print("Invalid input. Please enter a number.")
 
-def view_property_details(property):
+
+def view_property_details(player, property):  # Added player parameter
     # Display property details
     print("\n=== Property Details ===")
     print(property)
-    print("\n1. Go back to the portfolio")
-
+    
+    market_rent = calculate_market_rent(player, property)
+    rent_difference = ((property.rent_per_unit - market_rent) / market_rent) * 100
+    
+    print(f"\nCurrent Rent: ${property.rent_per_unit:,.2f}")
+    print(f"Market Rent: ${market_rent:,.2f} ({rent_difference:+.1f}% difference)")
+    
+    print("\n1. Go back to portfolio")
+    print("2. Adjust Rent")
+    
     while True:
         choice = input("Enter your choice: ")
         if choice == "1":
             break
+        elif choice == "2":
+            adjust_property_rent(player, property)
+            break  # Refresh display after adjustment
         else:
-            print("\nInvalid choice. Please enter 1.")
+            print("\nInvalid choice. Please enter 1 or 2.")
 
 
 # Display addresses for a sepcific a specific type
